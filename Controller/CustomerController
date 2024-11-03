@@ -1,0 +1,71 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using MANAGER;
+using static MODEL.UserModel;
+using MANAGER.Services;
+
+namespace Controller.UserController
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UsersController : ControllerBase
+    {
+        private readonly IUserService _userService;
+        
+
+        public UsersController(IUserService UserService)
+        {
+            _userService = UserService;
+        }
+
+        [HttpGet]
+        public ActionResult<IEnumerable<User>> GetUser()
+        {
+            return Ok(_userService.GetAllUser());
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<User> GetUser(int id)
+        {
+            var user = _userService.GetUserById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(User);
+        }
+
+        [HttpPost]
+        public ActionResult AddUser(User user)
+        {
+            _userService.AddUser(user);
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateStudent(int id, User user)
+        {
+            var existingStudent = _userService.GetUserById(id);
+            if (existingStudent == null)
+            {
+                return NotFound();
+            }
+
+            _userService.UpdateUser(id, user);
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteUser(int id)
+        {
+            var user = _userService.GetUserById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            _userService.DeleteUser(id);
+            return NoContent();
+        }
+    }
+}
